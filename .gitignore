@@ -37,18 +37,21 @@ CMakeUserPresets.json
 *.core
 *.stackdump
 
-# === Pi-specific (if used) ===
+# === Pi-specific  ===
 *.swp
 *.bak
 *.tmp
 
 # === Credentials / Certs ===
 certs/
+deploy/certs/
 *.pem
 *.key
 *.der
 *.csr
 *.crt
+*.env
+.env
 
 # === External Libraries (submodules are okay) ===
 third_party/
@@ -57,10 +60,13 @@ deps/
 *.tar.gz
 *.zip
 
+# === Node / React Frontend ===
+dashboard/react-frontend/node_modules/
+dashboard/react-frontend/build/
+
 # === IDE Specific ===
 .vscode/
 .DS_Store
-
 # === Python Scripts (if used for tools/setup) ===
 __pycache__/
 *.pyc
