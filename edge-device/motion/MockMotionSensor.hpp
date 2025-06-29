@@ -1,5 +1,5 @@
-#ifndef MOCKMOTIONSENSOR_HPP
-#define MOCKMOTIONSENSOR_HPP
+#ifndef MOCK_MOTION_SENSOR_HPP
+#define MOCK_MOTION_SENSOR_HPP
 
 #include "IMotionSensor.hpp"
 #include <chrono>
@@ -15,4 +15,4 @@ private:
     mutable std::default_random_engine engine;
     mutable std::bernoulli_distribution distribution;
 };
-#endif
+#endif // MOCK_MOTION_SENSOR_HPP
