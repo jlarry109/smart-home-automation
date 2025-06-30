@@ -52,7 +52,7 @@ deploy/certs/
 *.crt
 *.env
 .env
-
+config.json
 # === External Libraries (submodules are okay) ===
 third_party/
 external/

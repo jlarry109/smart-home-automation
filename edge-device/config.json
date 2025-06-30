@@ -1,9 +1,0 @@
-{
-  "serverURI": "ssl://your-iot-endpoint.amazonaws.com:8883",
-  "clientId": "edge-device-001",
-  "certs": {
-    "ca": "certs/AmazonRootCA1.pem",
-    "cert": "certs/device-certificate.pem.crt",
-    "key": "certs/private.pem.key"
-  }
-}
