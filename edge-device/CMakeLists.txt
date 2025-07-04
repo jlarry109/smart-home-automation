@@ -10,12 +10,23 @@ add_subdirectory(motion)
 find_package(PahoMqttCpp REQUIRED)
 find_package(OpenSSL REQUIRED)
 
-# Main app
-add_executable(edge_device main.cpp)
+# Main app (add all sources here)
+add_executable(edge_device
+    main.cpp
+    ../config/ConfigLoader.cpp
+    ../mqtt/PahoMqttClient.cpp
+)
 
+# Link libraries
 target_link_libraries(edge_device
-        motion
-        PahoMqttCpp::paho-mqttpp3
-        OpenSSL::SSL
-        OpenSSL::Crypto
+    motion
+    PahoMqttCpp::paho-mqttpp3
+    OpenSSL::SSL
+    OpenSSL::Crypto
+)
+
+# Include custom headers
+target_include_directories(edge_device PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/../config 
+    ${CMAKE_CURRENT_SOURCE_DIR}/../mqtt
 )

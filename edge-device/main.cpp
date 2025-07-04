@@ -1,7 +1,7 @@
 #include "ConfigLoader.hpp"
 #include "motion/MotionMonitor.hpp"
 #include "motion/MockMotionSensor.hpp"
-#include "mqtt/PahoMqttClient.hpp"
+#include "PahoMqttClient.hpp"
 #include <memory>
 #include <thread>
 #include <chrono>
