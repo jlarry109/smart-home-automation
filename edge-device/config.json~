@@ -1,9 +1,0 @@
-{
-  "serverURI": "a26ehq1cyje21t-ats.iot.us-east-1.amazonaws.com",
-  "clientId": "pi-node-1",
-  "certs": {
-    "ca": "/home/jolaar/personal-projects/smart-home-automation/certs/AmazonRootCA1.pem",
-    "cert": "/home/jolaar/personal-projects/smart-home-automation/certs/pi-node-1.cert.pem",
-    "key": "/home/jolaar/personal-projects/smart-home-automation/certs/pi-node-1.private.key"
-  }
-}
