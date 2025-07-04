@@ -70,3 +70,4 @@ dashboard/react-frontend/build/
 # === Python Scripts (if used for tools/setup) ===
 __pycache__/
 *.pyc
+config.json~
