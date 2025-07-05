@@ -1,4 +1,5 @@
 #include "LightMonitor.hpp"
+#include "utils/Logging.hpp"
 #include <chrono>
 
 LightMonitor::LightMonitor(std::shared_ptr <ILightSensor> sensor,
@@ -9,7 +10,7 @@ LightMonitor::LightMonitor(std::shared_ptr <ILightSensor> sensor,
                              controller_(std::move(controller)) {}
 
 LightMonitor::~LightMonitor() {
-    std::cout << "[LightMonitor] Destructor called." << std::endl;
+    THREAD_SAFE_COUT("[LightMonitor] Destructor called.");
     stopMonitoring();
 }
 
@@ -35,7 +36,7 @@ void LightMonitor::monitoringLoop(int intervalMs) {
             controller_->update(lux);
             std::this_thread::sleep_for(std::chrono::milliseconds(intervalMs));
         }
-        std::cout << "[LightMonitor] 🛑 Monitoring stopped gracefully." << std::endl;
+        THREAD_SAFE_COUT("[LightMonitor]: Monitoring stopped gracefully.");
     } catch (const std::exception& e) {
         std::cerr << "[LightMonitor] Uncaught error: " << e.what() << std::endl;
     } catch (...) {
