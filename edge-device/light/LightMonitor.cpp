@@ -10,7 +10,7 @@ LightMonitor::LightMonitor(std::shared_ptr <ILightSensor> sensor,
                              controller_(std::move(controller)) {}
 
 LightMonitor::~LightMonitor() {
-    THREAD_SAFE_COUT("[LightMonitor] Destructor called.");
+    threadSafeLog("[LightMonitor] Destructor called.");
     stopMonitoring();
 }
 
@@ -36,7 +36,7 @@ void LightMonitor::monitoringLoop(int intervalMs) {
             controller_->update(lux);
             std::this_thread::sleep_for(std::chrono::milliseconds(intervalMs));
         }
-        THREAD_SAFE_COUT("[LightMonitor]: Monitoring stopped gracefully.");
+        threadSafeLog("[LightMonitor]: Monitoring stopped gracefully.");
     } catch (const std::exception& e) {
         std::cerr << "[LightMonitor] Uncaught error: " << e.what() << std::endl;
     } catch (...) {

@@ -1,4 +1,5 @@
 #include "LightController.hpp"
+#include "../../utils/Logging.hpp"
 
 // Lux threshold for turning on the lights
 constexpr float LUX_ON_THRESHOLD = 100.0f;
@@ -16,14 +17,17 @@ void LightController::update(float lux) {
 }
 
 void LightController::turnOn() {
-    std::cout << "[LightController] 💡 Turning light ON (lux too low)" << std::endl;
+    std::ostringstream oss;
+    oss << "[LightController] 💡 Turning light ON (lux too low)";
+    threadSafeLog(oss.str());
     isLightOn_ = true;
 
     // TODO: GPIO/relay logic will go here later
 }
 
 void LightController::turnOff() {
-    std::cout << "[LightController] 🔌 Turning light OFF (lux sufficient)" << std::endl;
+    std::ostringstream oss;
+    oss << "[LightController] 🔌 Turning light OFF (lux sufficient)";
     isLightOn_ = false;
 
     // TODO: GPIO/relay logic will go here

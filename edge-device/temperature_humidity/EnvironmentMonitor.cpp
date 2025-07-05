@@ -9,13 +9,13 @@ EnvironmentMonitor::EnvironmentMonitor(std::shared_ptr<ITemperatureHumiditySenso
                                        : sensor_(std::move(sensor)), mqttClient_(std::move(mqttClient)) {}
 
 EnvironmentMonitor::~EnvironmentMonitor() {
-    THREAD_SAFE_COUT("[EnvironmentMonitor] Destructor called.");
+    threadSafeLog("[EnvironmentMonitor] Destructor called.");
     stopMonitoring();
 }
 
 void EnvironmentMonitor::startMonitoring(int intervalMs) {
     if (running_) {
-        THREAD_SAFE_COUT("[EnvironmentMonitor] Already running.");
+        threadSafeLog("[EnvironmentMonitor] Already running");
         return;
     }
     running_ = true;
@@ -23,6 +23,7 @@ void EnvironmentMonitor::startMonitoring(int intervalMs) {
 }
 void EnvironmentMonitor::stopMonitoring() {
     if (!running_) {
+        threadSafeLog("[EnvironmentMonitor] Already not running");
         return;
     }
     running_ = false;
@@ -35,9 +36,10 @@ void EnvironmentMonitor::monitoringLoop(int intervalMs) {
     try {
         while (running_) {
             auto reading = sensor_->read();
-
-            THREAD_SAFE_COUT("[EnvironmentMonitor] 🌡️ Temp: " << reading.temperatureCelsius
-                                                              << "°C, 💧 Humidity: " << reading.humidityPercent << "%");
+            std::ostringstream oss;
+            oss << "[EnvironmentMonitor] 🌡️ Temp: " << reading.temperatureCelsius
+                << "°C, 💧 Humidity: " << reading.humidityPercent << "%";
+            threadSafeLog(oss.str());
 
             if (mqttClient_) {
                 // Publish temperature and humidity as JSON payloads (or separate topics) => separate topics for now
@@ -48,6 +50,7 @@ void EnvironmentMonitor::monitoringLoop(int intervalMs) {
                 mqttClient_->publish("environment/humidity", humidPayload);
             }
         }
+        threadSafeLog("[EnvironmentMonitor] Monitoring stopped gracefully.");
     } catch (const std::exception &e) {
         std::cerr << "[EnvironmentMonitor] ERROR reading sensor or publishing to MQTT: " << e.what() << std::endl;
     } catch (...) {
