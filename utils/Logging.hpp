@@ -2,11 +2,14 @@
 #define LOGGING_HPP
 
 #include <iostream>
+#include <sstream>
 #include <mutex>
 
 inline std::mutex coutMutex;
 
-#define THREAD_SAFE_COUT(x) \
-    { std::lock_guard<std::mutex> lock(coutMutex); std::cout << x << std::endl; }
+inline void threadSafeLog(const std::string& message) {
+    std::lock_guard<std::mutex> lock(coutMutex);
+    std::cout << message << std::endl;
+}
 
 #endif // LOGGING_HPP
