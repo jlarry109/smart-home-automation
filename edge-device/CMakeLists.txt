@@ -6,6 +6,9 @@ set(CMAKE_CXX_STANDARD 20)
 # Add motion module
 add_subdirectory(motion)
 
+# Add temperature_humidity module
+add_subdirectory(temperature_humidity)
+
 # Use system-installed libs
 find_package(PahoMqttCpp REQUIRED)
 find_package(OpenSSL REQUIRED)
@@ -20,6 +23,7 @@ add_executable(edge_device
 # Link libraries
 target_link_libraries(edge_device
     motion
+    temp_humid
     PahoMqttCpp::paho-mqttpp3
     OpenSSL::SSL
     OpenSSL::Crypto

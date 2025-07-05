@@ -71,3 +71,4 @@ dashboard/react-frontend/build/
 __pycache__/
 *.pyc
 config.json~
+config.json*
