@@ -22,12 +22,18 @@ void LightMonitor::stopMonitoring() {
 }
 
 void LightMonitor::monitoringLoop(int intervalMs) {
-    while (!stopFlag_) {
-        float lux = sensor_->readLux();
-        logger_->log(lux);
-        logger_->maybeAlert(lux);
-        controller_->update(lux);
-        std::this_thread::sleep_for(std::chrono::milliseconds(intervalMs));
+    try {
+        while (!stopFlag_) {
+            float lux = sensor_->readLux();
+            logger_->log(lux);
+            logger_->maybeAlert(lux);
+            controller_->update(lux);
+            std::this_thread::sleep_for(std::chrono::milliseconds(intervalMs));
+        }
+        std::cout << "[LightMonitor] 🛑 Monitoring stopped gracefully." << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "[LightMonitor] Uncaught error: " << e.what() << std::endl;
+    } catch (...) {
+        std::cerr << "[LightMonitor] Unknown fatal error: " << std::endl;
     }
-    std::cout << "[LightMonitor] 🛑 Monitoring stopped gracefully." << std::endl;
 }

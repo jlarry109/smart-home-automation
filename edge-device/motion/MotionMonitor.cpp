@@ -34,14 +34,20 @@ void MotionMonitor::stopMonitoring() {
 }
 
 void MotionMonitor::monitoringLoop(int intervalMs) {
-    while (running_) {
-        bool motionDetected = sensor_->isMotionDetected();
-        std::cout << "[MotionMonitor] " << (motionDetected ? "🚨 Motion detected!" : "...No motion") << std::endl;
+    try {
+        while (running_) {
+            bool motionDetected = sensor_->isMotionDetected();
+            std::cout << "[MotionMonitor] " << (motionDetected ? "🚨 Motion detected!" : "...No motion") << std::endl;
 
-       if (mqttClient_) {
-           mqttClient_->publish("motion/detected", motionDetected ? "true" : "false");
-       }
-       std::this_thread::sleep_for(std::chrono::milliseconds(intervalMs));
+            if (mqttClient_) {
+                mqttClient_->publish("motion/detected", motionDetected ? "true" : "false");
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(intervalMs));
+        }
+        std::cout << "[MotionMonitor] 🛑 Monitoring stopped gracefully." << std::endl;
+    } catch (const std::exception & e) {
+        std::cerr << "[MotionMonitor] Error in monitoring loop: " << e.what() << std::endl;
+    } catch (...) {
+        std::cerr << "[MotionMonitor] Unknown error in monitoring loop." << std::endl;
     }
-    std::cout << "[MotionMonitor] 🛑 Monitoring stopped gracefully." << std::endl;
 }
