@@ -8,6 +8,8 @@ add_library(motion
         MotionMonitor.hpp
         MotionMonitor.cpp
 )
-target_include_directories(motion PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../mqtt
+target_include_directories(motion PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../mqtt
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../utils
 )

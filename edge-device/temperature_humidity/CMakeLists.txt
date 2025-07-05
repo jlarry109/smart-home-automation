@@ -9,4 +9,5 @@ add_library(temp_humid
 target_include_directories(temp_humid PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/../../mqtt
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../utils
 )

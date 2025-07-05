@@ -13,4 +13,5 @@ add_library(light
 target_include_directories(light PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/../../mqtt
+        ${CMAKE_CURRENT_SOURCE_DIR}/../../utils
 )

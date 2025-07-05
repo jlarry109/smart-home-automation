@@ -1,5 +1,5 @@
 #include "LightMonitor.hpp"
-#include "utils/Logging.hpp"
+#include "../../utils/Logging.hpp"
 #include <chrono>
 
 LightMonitor::LightMonitor(std::shared_ptr <ILightSensor> sensor,

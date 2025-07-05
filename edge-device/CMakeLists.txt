@@ -35,6 +35,7 @@ target_link_libraries(edge_device
 
 # Include custom headers
 target_include_directories(edge_device PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/../config 
-    ${CMAKE_CURRENT_SOURCE_DIR}/../mqtt
+        ${CMAKE_CURRENT_SOURCE_DIR}/../config
+        ${CMAKE_CURRENT_SOURCE_DIR}/../mqtt
+        ${CMAKE_CURRENT_SOURCE_DIR}/../utils
 )
