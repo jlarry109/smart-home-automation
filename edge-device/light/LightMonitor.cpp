@@ -1,0 +1,33 @@
+#include "LightMonitor.hpp"
+#include <chrono>
+
+LightMonitor::LightMonitor(std::shared_ptr <ILightSensor> sensor,
+                           std::shared_ptr <LuxLogger> logger,
+                           std::shared_ptr <LightController> controller)
+                           : sensor_(std::move(sensor)),
+                             logger_(std::move(logger)),
+                             controller_(std::move(controller)) {}
+
+
+void LightMonitor::startMonitoring(int intervalMs) {
+    stopFlag_ = false;
+    std::thread(&LightMonitor::monitoringLoop, this, intervalMs);
+}
+
+void LightMonitor::stopMonitoring() {
+    stopFlag_ = true;
+    if (monitorThread_.joinable()) {
+        monitorThread_.join();
+    }
+}
+
+void LightMonitor::monitoringLoop(int intervalMs) {
+    while (!stopFlag_) {
+        float lux = sensor_->readLux();
+        logger_->log(lux);
+        logger_->maybeAlert(lux);
+        controller_->update(lux);
+        std::this_thread::sleep_for(std::chrono::milliseconds(intervalMs));
+    }
+    std::cout << "[LightMonitor] 🛑 Monitoring stopped gracefully." << std::endl;
+}

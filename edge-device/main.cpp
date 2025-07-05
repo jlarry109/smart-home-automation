@@ -3,6 +3,11 @@
 #include "motion/MockMotionSensor.hpp"
 #include "temperature_humidity/EnvironmentMonitor.hpp"
 #include "temperature_humidity/MockTemperatureHumiditySensor.hpp"
+#include "light/MockLightSensor.hpp"
+#include "light/LuxLogger.hpp"
+#include "light/LightController.hpp"
+#include "light/LightMonitor.hpp"
+
 #include "PahoMqttClient.hpp"
 
 #include <memory>
@@ -26,15 +31,23 @@ int main() {
 
         // Motion setup
         auto motionSensor = std::make_shared<MockMotionSensor>();
-        MotionMonitor motionMonitor(motionSensor, mqttClient);
-        std::thread motionThread([&]() {
-            motionMonitor.startMonitoring(5000); // every 5 seconds
-        });
+//        MotionMonitor motionMonitor(motionSensor, mqttClient);
+        auto motionMonitor = std::make_shared<MotionMonitor>(motionSensor, mqttClient);
+        motionMonitor->startMonitoring(5000); // every 5 seconds
 
         // Temperature & Humidity setup
         auto envSensor = std::make_shared<MockTemperatureHumiditySensor>();
         EnvironmentMonitor envMonitor(envSensor, mqttClient);
         envMonitor.startMonitoring(7000); // every 7 seconds
+
+        // Light Sensor setup
+        auto lightSensor = std::make_shared<MockLightSensor>();
+        auto lightLogger = std::make_shared<LuxLogger>(mqttClient);
+        auto lightController = std::make_shared<LightController>();
+        auto lightMonitor = std::make_shared<LightMonitor>(lightSensor, lightLogger, lightController);
+
+        lightMonitor->startMonitoring(10000); // every 10 seconds
+
 
         // Run forever
         while (true) {
@@ -42,8 +55,9 @@ int main() {
         }
 
         // Clean shutdown (won't be reached in this version)
-        motionThread.join();
+        motionMonitor->stopMonitoring();
         envMonitor.stopMonitoring();
+        lightMonitor->stopMonitoring();
 
     } catch (const mqtt::exception& e) {
         std::cerr << "MQTT Error: " << e.what() << std::endl;
