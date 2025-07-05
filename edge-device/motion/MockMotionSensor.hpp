@@ -14,5 +14,6 @@ public:
 private:
     mutable std::default_random_engine engine;
     mutable std::bernoulli_distribution distribution;
+    mutable int callCount_ = 0;
 };
 #endif // MOCK_MOTION_SENSOR_HPP
