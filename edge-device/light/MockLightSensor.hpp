@@ -15,5 +15,6 @@ public:
 private:
     mutable std::default_random_engine engine_;
     mutable std::uniform_real_distribution<float> dist_;
+    mutable int callCount_ = 0;
 };
 #endif // MOCK_LIGHT_SENSOR_HPP

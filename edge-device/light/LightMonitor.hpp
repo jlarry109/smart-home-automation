@@ -30,7 +30,7 @@ private:
     std::shared_ptr<LuxLogger> logger_;
     std::shared_ptr<LightController> controller_;
 
-    std::atomic<bool> stopFlag_{false};
+    std::atomic<bool> running_{false};
     std::thread monitorThread_;
 };
 #endif //LIGHT_MONITOR_HPP

@@ -16,17 +16,25 @@ LightMonitor::~LightMonitor() {
 
 
 void LightMonitor::startMonitoring(int intervalMs) {
+    if (running_) {
+        threadSafeLog("[LightMonitor] Already running");
+        return;
+    }
     if (monitorThread_.joinable()) {
         threadSafeLog("[LightMonitor] Already running");
         return;
     }
 
-    stopFlag_ = false;
+    running_ = true;
     monitorThread_ = std::thread(&LightMonitor::monitoringLoop, this, intervalMs);
 }
 
 void LightMonitor::stopMonitoring() {
-    stopFlag_ = true;
+    if (!running_) {
+        threadSafeLog("[LightMonitor] Already stopped");
+        return;
+    }
+    running_ = false;
     if (monitorThread_.joinable()) {
         monitorThread_.join();
     }
@@ -34,7 +42,7 @@ void LightMonitor::stopMonitoring() {
 
 void LightMonitor::monitoringLoop(int intervalMs) {
     try {
-        while (!stopFlag_) {
+        while (running_) {
             float lux = sensor_->readLux();
             logger_->log(lux);
             logger_->maybeAlert(lux);
