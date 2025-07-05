@@ -11,6 +11,7 @@ MotionMonitor::MotionMonitor(std::shared_ptr <IMotionSensor> sensor, std::shared
     : sensor_(std::move(sensor)), mqttClient_(std::move(mqttClient)){}
 
  MotionMonitor::~MotionMonitor() {
+     std::cout << "[MotionMonitor] Destructor called." << std::endl;
     stopMonitoring();
 }
 void MotionMonitor::startMonitoring(int intervalMs) {

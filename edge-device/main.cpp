@@ -37,8 +37,8 @@ int main() {
 
         // Temperature & Humidity setup
         auto envSensor = std::make_shared<MockTemperatureHumiditySensor>();
-        EnvironmentMonitor envMonitor(envSensor, mqttClient);
-        envMonitor.startMonitoring(7000); // every 7 seconds
+        auto envMonitor = std::make_shared<EnvironmentMonitor>(envSensor, mqttClient);
+        envMonitor->startMonitoring(7000); // every 7 seconds
 
         // Light Sensor setup
         auto lightSensor = std::make_shared<MockLightSensor>();
@@ -56,7 +56,7 @@ int main() {
 
         // Clean shutdown (won't be reached in this version)
         motionMonitor->stopMonitoring();
-        envMonitor.stopMonitoring();
+        envMonitor->stopMonitoring();
         lightMonitor->stopMonitoring();
 
     } catch (const mqtt::exception& e) {

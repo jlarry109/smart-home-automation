@@ -17,6 +17,7 @@ public:
     LightMonitor(std::shared_ptr<ILightSensor> sensor,
                  std::shared_ptr<LuxLogger> logger,
                  std::shared_ptr<LightController> controller);
+    ~LightMonitor();
 
     void startMonitoring(int intervalMs = 10000); // default: every 10 seconds
     void stopMonitoring();

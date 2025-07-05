@@ -8,6 +8,11 @@ LightMonitor::LightMonitor(std::shared_ptr <ILightSensor> sensor,
                              logger_(std::move(logger)),
                              controller_(std::move(controller)) {}
 
+LightMonitor::~LightMonitor() {
+    std::cout << "[LightMonitor] Destructor called." << std::endl;
+    stopMonitoring();
+}
+
 
 void LightMonitor::startMonitoring(int intervalMs) {
     stopFlag_ = false;

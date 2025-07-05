@@ -8,6 +8,7 @@ EnvironmentMonitor::EnvironmentMonitor(std::shared_ptr<ITemperatureHumiditySenso
                                        : sensor_(std::move(sensor)), mqttClient_(std::move(mqttClient)) {}
 
 EnvironmentMonitor::~EnvironmentMonitor() {
+    std::cout << "[EnvironmentMonitor] Destructor called." << std::endl;
     stopMonitoring();
 }
 
@@ -30,8 +31,8 @@ void EnvironmentMonitor::stopMonitoring() {
 }
 
 void EnvironmentMonitor::monitoringLoop(int intervalMs) {
-    while (running_) {
-        try {
+    try {
+        while (running_) {
             auto reading = sensor_->read();
 
             std::cout << "[EnvironmentMonitor] 🌡️ Temp: " << reading.temperatureCelsius
@@ -45,11 +46,11 @@ void EnvironmentMonitor::monitoringLoop(int intervalMs) {
                 mqttClient_->publish("environment/temperature", tempPayload);
                 mqttClient_->publish("environment/humidity", humidPayload);
             }
-        } catch (const std::exception& e) {
-            std::cerr << "[EnvironmentMonitor] ERROR reading sensor or publishing to MQTT: " << e.what() << std::endl;
-        } catch (...) {
-            std::cerr << "[EnvironmentMonitor] Unknown error reading sensor or publishing to MQTT." << std::endl;
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(intervalMs));
+    } catch (const std::exception &e) {
+        std::cerr << "[EnvironmentMonitor] ERROR reading sensor or publishing to MQTT: " << e.what() << std::endl;
+    } catch (...) {
+        std::cerr << "[EnvironmentMonitor] Unknown error reading sensor or publishing to MQTT." << std::endl;
     }
+    std::this_thread::sleep_for(std::chrono::milliseconds(intervalMs));
 }
