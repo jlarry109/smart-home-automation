@@ -16,8 +16,13 @@ LightMonitor::~LightMonitor() {
 
 
 void LightMonitor::startMonitoring(int intervalMs) {
+    if (monitorThread_.joinable()) {
+        threadSafeLog("[LightMonitor] Already running");
+        return;
+    }
+
     stopFlag_ = false;
-    std::thread(&LightMonitor::monitoringLoop, this, intervalMs);
+    monitorThread_ = std::thread(&LightMonitor::monitoringLoop, this, intervalMs);
 }
 
 void LightMonitor::stopMonitoring() {
