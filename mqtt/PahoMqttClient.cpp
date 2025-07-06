@@ -46,6 +46,29 @@ void PahoMqttClient::publish(const std::string& topic, const std::string& messag
     client_.publish(msg)->wait();
 }
 
+void PahoMqttClient::subscribe(const std::string &topic,
+                               std::function<void(const std::string &)> callback) {
+    try {
+        callbacks_[topic] = callback;
+        client_.set_callback(*this);  // Make sure our class receives MQTT messages
+        client_.subscribe(topic, 1)->wait(); // uses QoS=1 (at least once delivery) and blocks until subscription is confirmed.
+    } catch (const mqtt::exception& e) {
+        std::cerr << "[ERROR] MQTT exception during subscription: " << e.what() << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "[ERROR] Standard exception during subscription: " << e.what() << std::endl;
+    } catch (...) {
+        std::cerr << "[ERROR] Unknown error occurred during subscription." << std::endl;
+    }
+}
+
+void PahoMqttClient::message_arrived(mqtt::const_message_ptr msg) {
+   std::lock_guard<std::mutex> lock(callbacksMutex_);
+   auto it = callbacks_.find(msg->get_topic());
+   if (it != callbacks_.end()) {
+       it->second(msg->to_string());
+   }
+}
+
 void PahoMqttClient::disconnect() {
     client_.disconnect()->wait();
 }

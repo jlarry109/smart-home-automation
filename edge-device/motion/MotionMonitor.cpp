@@ -8,7 +8,10 @@ MotionMonitor::MotionMonitor(std::shared_ptr<IMotionSensor> sensor)
         : sensor_(std::move(sensor)) {}
 
 MotionMonitor::MotionMonitor(std::shared_ptr<IMotionSensor> sensor, std::shared_ptr<IMqttClient> mqttClient)
-        : sensor_(std::move(sensor)), mqttClient_(std::move(mqttClient)) {}
+        : sensor_(std::move(sensor)),
+        mqttClient_(std::move(mqttClient)),
+        running_(false),
+        lastState_(false) {}
 
 MotionMonitor::~MotionMonitor() {
     threadSafeLog("[MotionMonitor] Destructor called.");
@@ -43,8 +46,10 @@ void MotionMonitor::monitoringLoop(int intervalMs) {
             oss << "[MotionMonitor] " << (motionDetected ? " Motion detected!" : "...No motion");
             threadSafeLog(oss.str());
 
-            if (mqttClient_) {
-                mqttClient_->publish("motion/detected", motionDetected ? "true" : "false");
+            // publish only when the state changes (motion vs. no motion) to reduce MQTT traffic
+            if (motionDetected != lastState_ && mqttClient_) {
+                mqttClient_->publish("/sensor/motion", motionDetected ? "true" : "false");
+                lastState_ = motionDetected;
             }
 
             std::this_thread::sleep_for(std::chrono::milliseconds(intervalMs));

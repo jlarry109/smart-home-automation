@@ -1,24 +1,29 @@
 #include "ConfigLoader.hpp"
-#include "motion/MotionMonitor.hpp"
-#include "motion/MockMotionSensor.hpp"
-#include "temperature_humidity/EnvironmentMonitor.hpp"
-#include "temperature_humidity/MockTemperatureHumiditySensor.hpp"
-#include "light/MockLightSensor.hpp"
-#include "light/LuxLogger.hpp"
-#include "light/LightController.hpp"
-#include "light/LightMonitor.hpp"
-
 #include "PahoMqttClient.hpp"
 
+#include "motion/MockMotionSensor.hpp"
+#include "temperature_humidity/MockTemperatureHumiditySensor.hpp"
+#include "light/MockLightSensor.hpp"
+#include "light/LightController.hpp"
+
+#include "rules/SmartRuleEngine.hpp"
+#include "rules/MotionAtNightRule.hpp"
+#include "rules/HighTempRule.hpp"
+#include "rules/HumiditySpikeRule.hpp"
+
+#include "orchestration/SmartMqttOrchestrator.hpp"
+
 #include <memory>
-#include <thread>
 #include <chrono>
+#include <thread>
 #include <iostream>
 
 int main() {
     try {
+        // Load config
         MqttConfig config = ConfigLoader::load("config.json");
 
+        // Initialize MQTT client
         auto mqttClient = std::make_shared<PahoMqttClient>(
                 config.serverURI,
                 config.clientId,
@@ -26,38 +31,38 @@ int main() {
                 config.keyPath,
                 config.caPath
         );
-
         mqttClient->connect();
 
-        // Motion setup
-        auto motionSensor = std::make_shared<MockMotionSensor>();
-//        MotionMonitor motionMonitor(motionSensor, mqttClient);
-        auto motionMonitor = std::make_shared<MotionMonitor>(motionSensor, mqttClient);
-        motionMonitor->startMonitoring(5000); // every 5 seconds
-
-        // Temperature & Humidity setup
-        auto envSensor = std::make_shared<MockTemperatureHumiditySensor>();
-        auto envMonitor = std::make_shared<EnvironmentMonitor>(envSensor, mqttClient);
-        envMonitor->startMonitoring(7000); // every 7 seconds
-
-        // Light Sensor setup
-        auto lightSensor = std::make_shared<MockLightSensor>();
-        auto lightLogger = std::make_shared<LuxLogger>(mqttClient);
+        // Light control
         auto lightController = std::make_shared<LightController>();
-        auto lightMonitor = std::make_shared<LightMonitor>(lightSensor, lightLogger, lightController);
 
-        lightMonitor->startMonitoring(10000); // every 10 seconds
+        // Define rule actions
+        auto highTempAction = [mqttClient]() {
+            std::string msg = "[HighTempRule] 🔥 Overheat detected!";
+            threadSafeLog(msg);
+            mqttClient->publish("alerts/temperature", msg);
+        };
 
+        auto humidityAction = [mqttClient]() {
+            std::string msg = "[HumiditySpikeRule] 💧 Humidity spike detected!";
+            threadSafeLog(msg);
+            mqttClient->publish("alerts/humidity", msg);
+        };
+
+        // Register rules
+        auto ruleEngine = std::make_shared<SmartRuleEngine>();
+        ruleEngine->addRule(std::make_shared<MotionAtNightRule>(lightController));
+        ruleEngine->addRule(std::make_shared<HighTempRule>(highTempAction));
+        ruleEngine->addRule(std::make_shared<HumiditySpikeRule>(humidityAction));
+
+        // Start orchestrator
+        SmartMqttOrchestrator orchestrator(mqttClient, ruleEngine);
+        orchestrator.start();
 
         // Run forever
         while (true) {
             std::this_thread::sleep_for(std::chrono::seconds(60));
         }
-
-        // Clean shutdown (won't be reached in this version)
-        motionMonitor->stopMonitoring();
-        envMonitor->stopMonitoring();
-        lightMonitor->stopMonitoring();
 
     } catch (const mqtt::exception& e) {
         std::cerr << "MQTT Error: " << e.what() << std::endl;

@@ -46,9 +46,10 @@ void EnvironmentMonitor::monitoringLoop(int intervalMs) {
                 std::string tempPayload = std::to_string(reading.temperatureCelsius);
                 std::string humidPayload = std::to_string(reading.humidityPercent);
 
-                mqttClient_->publish("environment/temperature", tempPayload);
-                mqttClient_->publish("environment/humidity", humidPayload);
+                mqttClient_->publish("/sensor/temperature", tempPayload);
+                mqttClient_->publish("/sensor/humidity", humidPayload);
             }
+            std::this_thread::sleep_for(std::chrono::milliseconds(intervalMs));
         }
         threadSafeLog("[EnvironmentMonitor] Monitoring stopped gracefully.");
     } catch (const std::exception &e) {
@@ -56,5 +57,4 @@ void EnvironmentMonitor::monitoringLoop(int intervalMs) {
     } catch (...) {
         std::cerr << "[EnvironmentMonitor] Unknown error reading sensor or publishing to MQTT." << std::endl;
     }
-    std::this_thread::sleep_for(std::chrono::milliseconds(intervalMs));
 }

@@ -27,5 +27,6 @@ private:
 
     std::atomic<bool> running_{false};
     std::thread workerThread_;
+    bool lastState_{false};
 };
 #endif // MOTION_MONITOR_HPP

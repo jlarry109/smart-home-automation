@@ -13,13 +13,13 @@ void LuxLogger::log(float lux) {
     threadSafeLog(oss.str());
 
     if (mqttClient_) {
-        mqttClient_->publish("lux", std::to_string(lux));
+        mqttClient_->publish("/sensor/lux", std::to_string(lux));
     }
 }
 
 void LuxLogger::maybeAlert(float lux) {
     if (lastLux_ >= 0.0f && std::abs(lastLux_ - lux) > 400.0f) {
-        std::string msg = "[LuxLogger] ⚠️ Sudden lux change detected: " + std::to_string(lux);
+        std::string msg = "[LuxLogger]: Sudden lux change detected: " + std::to_string(lux);
         std::ostringstream oss;
         oss << msg;
         threadSafeLog(oss.str());

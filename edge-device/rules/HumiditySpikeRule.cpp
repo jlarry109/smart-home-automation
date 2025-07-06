@@ -12,9 +12,4 @@ void HumiditySpikeRule::evaluate(float lux, float temp, float humidity, bool mot
     }
 }
 
-/*
- * auto mqttClient = std::make_shared<YourMqttClientImpl>();
-auto humidityRule = std::make_shared<HumiditySpikeRule>([mqttClient] {
-    mqttClient->publish("alerts/humidity", "💧 Humidity spike detected!");
-});
- * */
+HumiditySpikeRule::~HumiditySpikeRule() = default;
