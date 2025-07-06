@@ -14,5 +14,6 @@ private:
     mutable std::default_random_engine engine_;
     mutable std::uniform_real_distribution<float> tempDist_;
     mutable std::uniform_real_distribution<float> humidDist_;
+    mutable int callCount_ =  0;
 };
 #endif // MOCK_TEMPERATURE_HUMIDITY_SENSOR_HPP
