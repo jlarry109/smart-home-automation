@@ -11,6 +11,8 @@ Owns relay or LED logic
 class LightController {
 public:
     void update(float lux);
+    void forceOn();
+    void forceOff();
 
 private:
     void turnOn();

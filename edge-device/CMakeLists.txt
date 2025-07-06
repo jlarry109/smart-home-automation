@@ -12,6 +12,9 @@ add_subdirectory(temperature_humidity)
 # Add light module
 add_subdirectory(light)
 
+# Add rules modules
+add_subdirectory(rules)
+
 # Use system-installed libs
 find_package(PahoMqttCpp REQUIRED)
 find_package(OpenSSL REQUIRED)
@@ -28,6 +31,7 @@ target_link_libraries(edge_device
     motion
     temp_humid
     light
+    rules
     PahoMqttCpp::paho-mqttpp3
     OpenSSL::SSL
     OpenSSL::Crypto

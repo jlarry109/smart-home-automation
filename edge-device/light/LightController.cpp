@@ -16,6 +16,18 @@ void LightController::update(float lux) {
     }
 }
 
+void LightController::forceOn() {
+    if (!isLightOn_) {
+        turnOn();
+    }
+}
+
+void LightController::forceOff() {
+    if (isLightOn_) {
+        turnOff();
+    }
+}
+
 void LightController::turnOn() {
     std::ostringstream oss;
     oss << "[LightController] 💡 Turning light ON (lux too low)";
