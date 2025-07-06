@@ -14,3 +14,5 @@ target_include_directories(rules PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/../../mqtt
         ${CMAKE_CURRENT_SOURCE_DIR}/../../utils
 )
+
+target_link_libraries(rules PUBLIC light)

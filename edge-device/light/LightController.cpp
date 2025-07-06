@@ -19,12 +19,14 @@ void LightController::update(float lux) {
 void LightController::forceOn() {
     if (!isLightOn_) {
         turnOn();
+        threadSafeLog("[LightController] Light forcefully turned ON by rule");
     }
 }
 
 void LightController::forceOff() {
     if (isLightOn_) {
         turnOff();
+        threadSafeLog("[LightController] Light forcefully turned OFF by rule");
     }
 }
 
