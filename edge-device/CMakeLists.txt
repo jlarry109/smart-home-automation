@@ -12,8 +12,11 @@ add_subdirectory(temperature_humidity)
 # Add light module
 add_subdirectory(light)
 
-# Add rules modules
+# Add rules module
 add_subdirectory(rules)
+
+# Add orchestrator module
+add_subdirectory(orchestration)
 
 # Use system-installed libs
 find_package(PahoMqttCpp REQUIRED)
@@ -32,6 +35,7 @@ target_link_libraries(edge_device
     temp_humid
     light
     rules
+    orchestration
     PahoMqttCpp::paho-mqttpp3
     OpenSSL::SSL
     OpenSSL::Crypto
