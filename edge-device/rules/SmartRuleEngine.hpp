@@ -3,6 +3,7 @@
 #include "ISmartRule.hpp"
 #include "../../utils/Logging.hpp"
 #include <vector>
+#include <memory>
 
 class SmartRuleEngine {
 public:
