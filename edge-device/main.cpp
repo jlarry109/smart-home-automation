@@ -2,9 +2,12 @@
 #include "PahoMqttClient.hpp"
 
 #include "motion/MockMotionSensor.hpp"
+#include "motion/MotionMonitor.hpp"
 #include "temperature_humidity/MockTemperatureHumiditySensor.hpp"
+#include "temperature_humidity/EnvironmentMonitor.hpp"
 #include "light/MockLightSensor.hpp"
 #include "light/LightController.hpp"
+#include "light/LightMonitor.hpp"
 
 #include "rules/SmartRuleEngine.hpp"
 #include "rules/MotionAtNightRule.hpp"
@@ -33,9 +36,6 @@ int main() {
         );
         mqttClient->connect();
 
-        // Light control
-        auto lightController = std::make_shared<LightController>();
-
         // Define rule actions
         auto highTempAction = [mqttClient]() {
             std::string msg = "[HighTempRule] 🔥 Overheat detected!";
@@ -49,11 +49,29 @@ int main() {
             mqttClient->publish("alerts/humidity", msg);
         };
 
+        // Create mock sensors
+        auto mockMotionSensor = std::make_shared<MockMotionSensor>();
+        auto mockLightSensor = std::make_shared<MockLightSensor>();
+        auto mockTempHumidSensor = std::make_shared<MockTemperatureHumiditySensor>();
+
+        auto luxLogger = std::make_shared<LuxLogger>(mqttClient);
+        auto lightController = std::make_shared<LightController>();
+
         // Register rules
         auto ruleEngine = std::make_shared<SmartRuleEngine>();
         ruleEngine->addRule(std::make_shared<MotionAtNightRule>(lightController));
         ruleEngine->addRule(std::make_shared<HighTempRule>(highTempAction));
         ruleEngine->addRule(std::make_shared<HumiditySpikeRule>(humidityAction));
+
+        // Create monitors and pass mqttClient to them
+        auto motionMonitor = std::make_shared<MotionMonitor>(mockMotionSensor, mqttClient);
+        auto lightMonitor = std::make_shared<LightMonitor>(mockLightSensor, luxLogger, lightController);
+        auto envMonitor = std::make_shared<EnvironmentMonitor>(mockTempHumidSensor, mqttClient);
+
+        // Start the monitors to publish sensor data periodically
+        motionMonitor->startMonitoring();
+        lightMonitor->startMonitoring();
+        envMonitor->startMonitoring();
 
         // Start orchestrator
         SmartMqttOrchestrator orchestrator(mqttClient, ruleEngine);

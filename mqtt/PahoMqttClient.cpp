@@ -44,6 +44,7 @@ void PahoMqttClient::publish(const std::string& topic, const std::string& messag
     mqtt::message_ptr msg = mqtt::make_message(topic, message);
     msg->set_qos(1);
     client_.publish(msg)->wait();
+    std::cout << "[INFO] Published message to topic: " << topic << std::endl;
 }
 
 void PahoMqttClient::subscribe(const std::string &topic,
@@ -52,6 +53,7 @@ void PahoMqttClient::subscribe(const std::string &topic,
         callbacks_[topic] = callback;
         client_.set_callback(*this);  // Make sure our class receives MQTT messages
         client_.subscribe(topic, 1)->wait(); // uses QoS=1 (at least once delivery) and blocks until subscription is confirmed.
+        std::cout << "[INFO] Subscribed to topic: " << topic << std::endl;
     } catch (const mqtt::exception& e) {
         std::cerr << "[ERROR] MQTT exception during subscription: " << e.what() << std::endl;
     } catch (const std::exception& e) {
