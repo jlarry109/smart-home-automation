@@ -31,17 +31,14 @@ void LightController::forceOff() {
 }
 
 void LightController::turnOn() {
-    std::ostringstream oss;
-    oss << "[LightController] 💡 Turning light ON (lux too low)";
-    threadSafeLog(oss.str());
+    threadSafeLog("[LightController] 💡 Turning light ON (lux too low)");
     isLightOn_ = true;
-
     // TODO: GPIO/relay logic will go here later
 }
 
 void LightController::turnOff() {
     std::ostringstream oss;
-    oss << "[LightController] 🔌 Turning light OFF (lux sufficient)";
+    threadSafe("[LightController] 🔌 Turning light OFF (lux sufficient)");
     isLightOn_ = false;
 
     // TODO: GPIO/relay logic will go here

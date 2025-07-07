@@ -1,4 +1,5 @@
 #include "PahoMqttClient.hpp"
+#include "../utils/Logging.hpp"
 #include <mqtt/connect_options.h>
 #include <mqtt/ssl_options.h>
 #include <iostream>
@@ -24,9 +25,11 @@ void PahoMqttClient::connect() {
         connOpts.set_clean_session(true);
         connOpts.set_ssl(sslOpts);
 
-        std::cout << "[DEBUG] Attempting MQTT connection to " << client_.get_server_uri() << " with client ID " << client_.get_client_id() << std::endl;
+        std::ostringstream oss;
+        oss << "[DEBUG] Attempting MQTT connection to " << client_.get_server_uri() << " with client ID " << client_.get_client_id();
+        threadSafeLog(oss.str());
         client_.connect(connOpts)->wait();
-        std::cout << "[INFO] MQTT connected successfully." << std::endl;
+        threadSafeLog("[INFO] MQTT connected successfully.");
 
     } catch (const mqtt::exception& e) {
         std::cerr << "[ERROR] MQTT exception: " << e.what() << " (code " << e.get_reason_code() << ")" << std::endl;
@@ -44,7 +47,9 @@ void PahoMqttClient::publish(const std::string& topic, const std::string& messag
     mqtt::message_ptr msg = mqtt::make_message(topic, message);
     msg->set_qos(1);
     client_.publish(msg)->wait();
-    std::cout << "[INFO] Published message to topic: " << topic << std::endl;
+    std::ostringstream oss;
+    oss << "[INFO] Published message to topic: " << topic;
+    threadSafeLog(oss.str());
 }
 
 void PahoMqttClient::subscribe(const std::string &topic,
@@ -53,7 +58,9 @@ void PahoMqttClient::subscribe(const std::string &topic,
         callbacks_[topic] = callback;
         client_.set_callback(*this);  // Make sure our class receives MQTT messages
         client_.subscribe(topic, 1)->wait(); // uses QoS=1 (at least once delivery) and blocks until subscription is confirmed.
-        std::cout << "[INFO] Subscribed to topic: " << topic << std::endl;
+        std::ostringstream oss;
+        oss << "[INFO] Subscribed to topic: " << topic;
+        threadSafeLog(oss.str());
     } catch (const mqtt::exception& e) {
         std::cerr << "[ERROR] MQTT exception during subscription: " << e.what() << std::endl;
     } catch (const std::exception& e) {
