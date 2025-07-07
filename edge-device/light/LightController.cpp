@@ -38,7 +38,7 @@ void LightController::turnOn() {
 
 void LightController::turnOff() {
     std::ostringstream oss;
-    threadSafe("[LightController] 🔌 Turning light OFF (lux sufficient)");
+    threadSafeLog("[LightController] 🔌 Turning light OFF (lux sufficient)");
     isLightOn_ = false;
 
     // TODO: GPIO/relay logic will go here
