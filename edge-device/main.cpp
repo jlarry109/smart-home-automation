@@ -38,15 +38,15 @@ int main() {
 
         // Define rule actions
         auto highTempAction = [mqttClient]() {
-            std::string msg = "[HighTempRule] 🔥 Overheat detected!";
-            threadSafeLog(msg);
-            mqttClient->publish("alerts/temperature", msg);
+            std::string msg = "[HighTempRule]: Temperature exceeded threshold!";
+            threadSafeLog("[HighTempRule] 🔥 Overheat detected!");
+            mqttClient->publish("/alerts/temperature", msg);
         };
 
         auto humidityAction = [mqttClient]() {
-            std::string msg = "[HumiditySpikeRule] 💧 Humidity spike detected!";
-            threadSafeLog(msg);
-            mqttClient->publish("alerts/humidity", msg);
+            std::string msg = "[HumiditySpikeRule]: Humidity exceeded threshold!";
+            threadSafeLog("[HumiditySpikeRule] 💧 Humidity spike detected!");
+            mqttClient->publish("/alerts/humidity", msg);
         };
 
         // Create mock sensors
@@ -59,7 +59,7 @@ int main() {
 
         // Register rules
         auto ruleEngine = std::make_shared<SmartRuleEngine>();
-        ruleEngine->addRule(std::make_shared<MotionAtNightRule>(lightController));
+        ruleEngine->addRule(std::make_shared<MotionAtNightRule>(lightController, mqttClient));
         ruleEngine->addRule(std::make_shared<HighTempRule>(highTempAction));
         ruleEngine->addRule(std::make_shared<HumiditySpikeRule>(humidityAction));
 

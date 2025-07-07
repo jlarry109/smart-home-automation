@@ -2,8 +2,11 @@
 #include "../../utils/Logging.hpp"
 #include <utility>
 
-MotionAtNightRule::MotionAtNightRule(std::shared_ptr <LightController> lightController, float luxThreshold)
+MotionAtNightRule::MotionAtNightRule(std::shared_ptr <LightController> lightController,
+                                     std::shared_ptr<IMqttClient> mqttClient,
+                                     float luxThreshold)
         : lightController_(std::move(lightController)),
+          mqttClient_(std::move(mqttClient)),
         luxThreshold_(luxThreshold)
         {}
 
@@ -17,6 +20,7 @@ void MotionAtNightRule::evaluate(float lux, float temp, float humidity, bool mot
         lightController_->forceOn();
         threadSafeLog("[MotionAtNightRule] Motion detected at low light (lux = " +
                       std::to_string(lux) + "). Turning light ON.");
+        mqttClient_->publish("/alerts/light", "MotionAtNight: Light turned ON");
     }
     else {
         lightController_->forceOff();
