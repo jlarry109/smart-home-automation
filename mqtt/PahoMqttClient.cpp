@@ -10,6 +10,7 @@ PahoMqttClient::PahoMqttClient(const std::string& serverURI,
                                const std::string& keyPath,
                                const std::string& caPath)
         : client_(serverURI, clientId),
+          clientId_(clientId),
           certPath_(certPath),
           keyPath_(keyPath),
           caPath_(caPath) {}
@@ -76,6 +77,10 @@ void PahoMqttClient::message_arrived(mqtt::const_message_ptr msg) {
    if (it != callbacks_.end()) {
        it->second(msg->to_string());
    }
+}
+
+const std::string& PahoMqttClient::getClientId() const {
+    return clientId_;
 }
 
 void PahoMqttClient::disconnect() {

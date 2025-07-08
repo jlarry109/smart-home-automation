@@ -8,13 +8,13 @@
 
 class HighTempRule : public ISmartRule {
 public:
-    HighTempRule(std::function<void()> onOverheatAction, float threshold = 30.0f);
+    HighTempRule(std::function<void(float)> onOverheatAction, float threshold = 30.0f);
     ~ HighTempRule() = default;
 
     void evaluate(float lux, float temp, float humidity, bool motion) override;
 
 private:
     float threshold_;
-    std::function<void()> onOverheatAction_;
+    std::function<void(float)> onOverheatAction_;
 };
 #endif // HIGH_TEMP_RULE_HPP

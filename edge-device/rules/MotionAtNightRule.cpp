@@ -1,5 +1,7 @@
 #include "MotionAtNightRule.hpp"
+#include <nlohmann/json.hpp>
 #include "../../utils/Logging.hpp"
+#include "../../utils/TimeUtils.hpp"
 #include <utility>
 
 MotionAtNightRule::MotionAtNightRule(std::shared_ptr <LightController> lightController,
@@ -20,7 +22,17 @@ void MotionAtNightRule::evaluate(float lux, float temp, float humidity, bool mot
         lightController_->forceOn();
         threadSafeLog("[MotionAtNightRule] Motion detected at low light (lux = " +
                       std::to_string(lux) + "). Turning light ON.");
-        mqttClient_->publish("/alerts/light", "MotionAtNight: Light turned ON");
+
+        nlohmann::json payloadJson = {
+                {"device_id", mqttClient_->getClientId()},
+                {"timestamp", getCurrentIsoTimestampUTC()},
+                {"sensor", "motion"},
+                {"value", motion},
+                {"rule", "MotionAtNightRule"},
+                {"message", "MotionAtNight: Light turned ON"}
+        };
+        std::string payload = payloadJson.dump();
+        mqttClient_->publish("/alerts/light", payload);
     }
     else {
         lightController_->forceOff();

@@ -6,7 +6,7 @@
 
 class HumiditySpikeRule : public ISmartRule {
 public:
-    HumiditySpikeRule(std::function<void()> onHighHumidityAction, float threshold = 70.0f);
+    HumiditySpikeRule(std::function<void(float)> onHighHumidityAction, float threshold = 70.0f);
     virtual ~HumiditySpikeRule();
 
     void evaluate(float lux, float temp, float humidity, bool motion) override;
@@ -14,6 +14,6 @@ public:
 
 private:
     float threshold_;
-    std::function<void()> onHighHumidityAction_;
+    std::function<void(float)> onHighHumidityAction_;
 };
 #endif // HUMIDITY_SPIKE_RULE_HPP

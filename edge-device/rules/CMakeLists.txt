@@ -16,3 +16,4 @@ target_include_directories(rules PUBLIC
 )
 
 target_link_libraries(rules PUBLIC light)
+target_include_directories(rules PRIVATE /opt/homebrew/Cellar/nlohmann-json/3.12.0/include)

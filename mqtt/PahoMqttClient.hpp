@@ -16,6 +16,7 @@ public:
                    const std::string& caPath);
 
     void connect() override;
+    const std::string& getClientId() const override;
     void publish(const std::string& topic, const std::string& message) override;
     void subscribe(const std::string& topic,
                    std::function<void(const std::string& payload)> callback) override;
@@ -24,6 +25,7 @@ public:
 
 private:
     mqtt::async_client client_;
+    std::string clientId_;
     std::string certPath_;
     std::string keyPath_;
     std::string caPath_;

@@ -15,6 +15,7 @@
 #include "rules/HumiditySpikeRule.hpp"
 
 #include "orchestration/SmartMqttOrchestrator.hpp"
+#include "../utils/TimeUtils.hpp"
 
 #include <memory>
 #include <chrono>
@@ -37,16 +38,35 @@ int main() {
         mqttClient->connect();
 
         // Define rule actions
-        auto highTempAction = [mqttClient]() {
+
+        auto highTempAction = [mqttClient](float temp) {
             std::string msg = "[HighTempRule]: Temperature exceeded threshold!";
+            nlohmann::json payloadJson = {
+                    {"device_id", mqttClient->getClientId()},
+                    {"timestamp", getCurrentIsoTimestampUTC()},
+                    {"sensor", "temperature"},
+                    {"value", temp},
+                    {"rule", "HighTempRule"},
+                    {"message", msg}
+            };
+            std::string payload = payloadJson.dump();
             threadSafeLog("[HighTempRule] 🔥 Overheat detected!");
-            mqttClient->publish("/alerts/temperature", msg);
+            mqttClient->publish("/alerts/temperature", payload);
         };
 
-        auto humidityAction = [mqttClient]() {
+        auto humidityAction = [mqttClient](float humidity) {
             std::string msg = "[HumiditySpikeRule]: Humidity exceeded threshold!";
+            nlohmann::json payloadJson = {
+                    {"device_id", mqttClient->getClientId()},
+                    {"timestamp", getCurrentIsoTimestampUTC()},
+                    {"sensor", "humidity"},
+                    {"value", humidity},
+                    {"rule", "HumiditySpikeRule"},
+                    {"message", msg}
+            };
+            std::string payload = payloadJson.dump();
             threadSafeLog("[HumiditySpikeRule] 💧 Humidity spike detected!");
-            mqttClient->publish("/alerts/humidity", msg);
+            mqttClient->publish("/alerts/humidity", payload);
         };
 
         // Create mock sensors

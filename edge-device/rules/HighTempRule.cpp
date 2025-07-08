@@ -1,13 +1,13 @@
 #include "HighTempRule.hpp"
 
 
-HighTempRule::HighTempRule(std::function<void()> onOverheatAction, float threshold)
+HighTempRule::HighTempRule(std::function<void(float)> onOverheatAction, float threshold)
     : onOverheatAction_(std::move(onOverheatAction)), threshold_(threshold) {}
 
 void HighTempRule::evaluate(float lux, float temp, float humidity, bool motion) {
     if (temp > threshold_) {
         threadSafeLog("[HighTempRule]: High temperature detected: " + std::to_string(temp) + "°C");
-        onOverheatAction_(); // Trigger MQTT alert or buzzer action...
+        onOverheatAction_(temp); // Trigger MQTT alert or buzzer action...
     }
 }
 
