@@ -8,8 +8,8 @@ from decimal import Decimal
 
 
 def handler(event, context):
-    if not logging.getLogger().handlers:
-        logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger()
+    logger.setLevel(logging.INFO)
 
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table(os.environ['TABLE_NAME'])
@@ -31,7 +31,7 @@ def handler(event, context):
         with table.batch_writer() as batch:
             for record in records:
                 try:
-                    payload = json.loads(record['body'])
+                    payload = json.loads(record['body']) # payload = convert_floats(json.loads(record['body']))
 
                     if not payload.get('device_id'):
                         logging.warning("Skipping record without device_id")
@@ -42,7 +42,7 @@ def handler(event, context):
                         'timestamp': payload.get('timestamp', datetime.now(timezone.utc).isoformat())
                     }
 
-                    for field in ['sensor', 'value', 'rule', 'message']:
+                    for field in ['rule', 'sensor', 'value', 'message']:
                         if payload.get(field) is not None:
                             val =  payload[field]
                             if isinstance(val, float):
