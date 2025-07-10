@@ -25,7 +25,7 @@ export class SmartHomeAutomationInfraStack extends cdk.Stack {
 
     const telemetryTable = new cdk.aws_dynamodb.Table(this, `${props?.tableName}`, {
       tableName: props?.tableName,
-      partitionKey: { name: 'deviceId', type: cdk.aws_dynamodb.AttributeType.STRING },
+      partitionKey: { name: 'device_id', type: cdk.aws_dynamodb.AttributeType.STRING },
       sortKey: { name: 'timestamp', type: cdk.aws_dynamodb.AttributeType.STRING },
       billingMode: cdk.aws_dynamodb.BillingMode.PAY_PER_REQUEST,
       removalPolicy: props.env.prod ? cdk.RemovalPolicy.RETAIN : cdk.RemovalPolicy.DESTROY
