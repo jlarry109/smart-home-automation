@@ -3,6 +3,7 @@ import boto3
 import json
 import logging
 from datetime import datetime, timezone
+from decimal import Decimal
 
 
 
@@ -43,7 +44,10 @@ def handler(event, context):
 
                     for field in ['sensor', 'value', 'rule', 'message']:
                         if payload.get(field) is not None:
-                            telemetry_data[field] = payload[field]
+                            val =  payload[field]
+                            if isinstance(val, float):
+                                val = Decimal(str(val))
+                            telemetry_data[field] = val
 
                     batch.put_item(Item=telemetry_data)
                     logging.info("Queued telemetry for device: %s", payload['device_id'])
