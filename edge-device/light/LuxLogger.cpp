@@ -25,7 +25,7 @@ void LuxLogger::maybeAlert(float lux) {
         threadSafeLog(oss.str());
 
         if (mqttClient_) {
-            mqttClient_->publish("light/alert", msg);
+            mqttClient_->publish("/alerts/light", msg);
         }
     }
     lastLux_ = lux;
