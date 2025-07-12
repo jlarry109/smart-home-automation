@@ -6,6 +6,10 @@
 
 #include <memory>
 #include <mutex>
+#include <condition_variable>
+#include <atomic>
+#include <thread>
+#include <queue>
 
 class SmartMqttOrchestrator {
 public:
@@ -13,6 +17,7 @@ public:
                           std::shared_ptr<SmartRuleEngine> ruleEngine);
 
     void start();
+    void stop();
 
 private:
     void onMotionMessage(const std::string& payload);
@@ -20,9 +25,22 @@ private:
     void onTempMessage(const std::string& payload);
     void onHumidityMessage(const std::string& payload);
     void evaluateIfReady();
+    void processingLoop();
+
+    struct Message {
+        enum class Type { Motion, Lux, Temp, Humidity } type;
+        std::string payload;
+    };
 
     std::shared_ptr<IMqttClient> mqttClient_;
     std::shared_ptr<SmartRuleEngine> ruleEngine_;
+    std::queue<Message> messageQueue_;
+    std::mutex queueMutex_;
+    std::condition_variable queueCv_;
+    std::atomic<bool> running_ = false;
+    std::thread workerThread_;
+
+    void processMessages();
 
     std::mutex dataMutex_;
     bool hasMotion_ = false;

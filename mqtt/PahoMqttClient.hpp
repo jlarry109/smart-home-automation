@@ -32,6 +32,8 @@ private:
 
     std::map<std::string, std::function<void(const std::string& payload)>> callbacks_;
     std::mutex callbacksMutex_;
+
+    mutable std::mutex mqttPublishMutex_;
 };
 #endif // PAHO_MQTT_HPP
 

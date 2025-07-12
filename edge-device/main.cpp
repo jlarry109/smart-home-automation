@@ -104,6 +104,13 @@ int main() {
             std::this_thread::sleep_for(std::chrono::seconds(60));
         }
 
+        // Not reachable now
+        motionMonitor->stopMonitoring();
+        lightMonitor->stopMonitoring();
+        envMonitor->stopMonitoring();
+        orchestrator.stop();
+        mqttClient->disconnect();
+
     } catch (const mqtt::exception& e) {
         std::cerr << "MQTT Error: " << e.what() << std::endl;
         return 1;
