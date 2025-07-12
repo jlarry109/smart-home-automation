@@ -45,7 +45,7 @@ export class SmartHomeAutomationInfraStack extends cdk.Stack {
     const iotHighTemperatureAlertRuleToLambda = new aws_iot.CfnTopicRule(this, 'HighTemperatureAlertRule', {
       topicRulePayload: {
         ruleDisabled: false,
-        sql: `SELECT * FROM '/alerts/temperature'`,
+        sql: `SELECT * FROM /alerts/temperature`,
         actions: [
           {
             lambda: {
@@ -59,7 +59,7 @@ export class SmartHomeAutomationInfraStack extends cdk.Stack {
     const iotHumiditySpikeAlertRuleToLambda = new aws_iot.CfnTopicRule(this, 'HumiditySpikeAlertRule', {
       topicRulePayload: {
         ruleDisabled: false,
-        sql: `SELECT * FROM '/alerts/humidity'`,
+        sql: `SELECT * FROM /alerts/humidity`,
         actions: [
           {
             lambda: {
@@ -74,7 +74,7 @@ export class SmartHomeAutomationInfraStack extends cdk.Stack {
       topicRulePayload: {
         description: 'triggered when motion is detected at night => Light is turned ON',
         ruleDisabled: false,
-        sql: `SELECT * FROM '/alerts/light'`,
+        sql: `SELECT * FROM /alerts/light`,
         actions: [
           {
             lambda: {
