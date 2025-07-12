@@ -1,6 +1,4 @@
 #include "SmartMqttOrchestrator.hpp"
-#include <sstream>
-#include <cstdlib>
 #include <iostream>
 
 SmartMqttOrchestrator::SmartMqttOrchestrator(std::shared_ptr<IMqttClient> mqttClient,
@@ -8,7 +6,7 @@ SmartMqttOrchestrator::SmartMqttOrchestrator(std::shared_ptr<IMqttClient> mqttCl
         : mqttClient_(std::move(mqttClient)), ruleEngine_(std::move(ruleEngine)) {}
 
 void SmartMqttOrchestrator::start() {
-    // lambda simply forwards the payload to method onMotionMessage
+    // lambda function simply forwards the payload to method onMotionMessage
     mqttClient_->subscribe("/sensor/motion", [this](const std::string& payload) {
         onMotionMessage(payload);
     });
@@ -83,21 +81,24 @@ void SmartMqttOrchestrator::evaluateIfReady() {
     {
         std::lock_guard<std::mutex> lock(dataMutex_);
         if (hasMotion_ && hasLux_ && hasTemp_ && hasHumidity_) {
-            // Copy values
             lux = lux_;
             temp = temp_;
             humidity = humidity_;
             motion = motion_;
+            hasMotion_ = hasLux_ = hasTemp_ = hasHumidity_ = false;
             ready = true;
-
-            hasMotion_ = false;
-            hasLux_ = false;
-            hasTemp_ = false;
-            hasHumidity_ = false;
         }
     }
+
     if (ready) {
+        std::ostringstream oss;
+        oss << "[DEBUG] Evaluating rules with values: "
+            << "Lux=" << lux << ", Temp=" << temp
+            << ", Humidity=" << humidity << ", Motion=" << motion;
+        threadSafeLog(oss.str());
+
         ruleEngine_->evaluate(lux, temp, humidity, motion);
     }
 }
+
 
