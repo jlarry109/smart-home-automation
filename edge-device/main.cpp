@@ -52,6 +52,7 @@ int main() {
             std::string payload = payloadJson.dump();
             threadSafeLog("[HighTempRule] 🔥 Overheat detected!");
             mqttClient->publish("/alerts/temperature", payload);
+            threadSafeLog("[HighTempRule] 🔥 Published alert: + payload");
         };
 
         auto humidityAction = [mqttClient](float humidity) {
@@ -67,6 +68,7 @@ int main() {
             std::string payload = payloadJson.dump();
             threadSafeLog("[HumiditySpikeRule] 💧 Humidity spike detected!");
             mqttClient->publish("/alerts/humidity", payload);
+            threadSafeLog("[HumiditySpikeRule] 💧 Published alert: + payload");
         };
 
         // Create mock sensors
@@ -79,9 +81,9 @@ int main() {
 
         // Register rules
         auto ruleEngine = std::make_shared<SmartRuleEngine>();
-        ruleEngine->addRule(std::make_shared<MotionAtNightRule>(lightController, mqttClient));
-        ruleEngine->addRule(std::make_shared<HighTempRule>(highTempAction));
-        ruleEngine->addRule(std::make_shared<HumiditySpikeRule>(humidityAction));
+        ruleEngine->addRule(std::make_shared<MotionAtNightRule>(lightController, mqttClient, 28.0f));
+        ruleEngine->addRule(std::make_shared<HighTempRule>(highTempAction, 25.0f));
+        ruleEngine->addRule(std::make_shared<HumiditySpikeRule>(humidityAction, 55.0f));
 
         // Create monitors and pass mqttClient to them
         auto motionMonitor = std::make_shared<MotionMonitor>(mockMotionSensor, mqttClient);

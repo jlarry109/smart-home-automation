@@ -10,13 +10,13 @@ MockTemperatureHumiditySensor::MockTemperatureHumiditySensor()
 TemperatureHumidityReading MockTemperatureHumiditySensor::read() const {
     callCount_++;
 
-    // Simulate spikes every 30 calls
+    // Simulate spikes every 20 calls
     float tempSpike = 0.0f;
     float humidSpike = 0.0f;
 
-    if (callCount_ % 30 == 0) {
-        tempSpike = 10.0f * (std::bernoulli_distribution(0.6)(engine_) ? 1.0f : -1.0f);
-        humidSpike = 20.0f * (std::bernoulli_distribution(0.7)(engine_) ? 1.0f : -1.0f);
+    if (callCount_ % 20 == 0) {
+        tempSpike = 10.0f * (std::bernoulli_distribution(0.7)(engine_) ? 1.0f : -1.0f);
+        humidSpike = 20.0f * (std::bernoulli_distribution(0.8)(engine_) ? 1.0f : -1.0f);
     }
 
     float temperature = tempDist_(engine_) + tempSpike;

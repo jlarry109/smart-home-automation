@@ -42,7 +42,7 @@ void LightMonitor::monitoringLoop(int intervalMs) {
             float lux = sensor_->readLux();
             logger_->log(lux);
             logger_->maybeAlert(lux);
-            controller_->update(lux);
+            // controller_->update(lux);
             std::this_thread::sleep_for(std::chrono::milliseconds(intervalMs));
         }
         threadSafeLog("[LightMonitor]: Monitoring stopped gracefully.");
