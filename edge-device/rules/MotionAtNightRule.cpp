@@ -32,7 +32,7 @@ void MotionAtNightRule::evaluate(float lux, float temp, float humidity, bool mot
                 {"message", "MotionAtNight: Light turned ON"}
         };
         std::string payload = payloadJson.dump();
-        mqttClient_->publish("/alerts/light", payload);
+        mqttClient_->publish("alerts/light", payload);
         threadSafeLog("[MotionAtNightRule] Published alert: " + payload);
     }
     else {

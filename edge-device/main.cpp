@@ -51,7 +51,7 @@ int main() {
             };
             std::string payload = payloadJson.dump();
             threadSafeLog("[HighTempRule] 🔥 Overheat detected!");
-            mqttClient->publish("/alerts/temperature", payload);
+            mqttClient->publish("alerts/temperature", payload);
             threadSafeLog("[HighTempRule] 🔥 Published alert: " + payload);
         };
 
@@ -67,7 +67,7 @@ int main() {
             };
             std::string payload = payloadJson.dump();
             threadSafeLog("[HumiditySpikeRule] 💧 Humidity spike detected!");
-            mqttClient->publish("/alerts/humidity", payload);
+            mqttClient->publish("alerts/humidity", payload);
             threadSafeLog("[HumiditySpikeRule] 💧 Published alert: " + payload);
         };
 
