@@ -52,10 +52,26 @@ void PahoMqttClient::publish(const std::string& topic, const std::string& messag
     mqtt::message_ptr msg = mqtt::make_message(topic, message);
     msg->set_qos(1);
     threadSafeLog("[Inside PahoMqttClient::publish - after set_qos()]...looking to publish to: " + topic);
-    client_.publish(msg)->wait();
-    std::ostringstream oss;
-    oss << "[INFO] Published message to topic: " << topic;
-    threadSafeLog(oss.str());
+    try {
+        auto tok = client_.publish(msg);
+
+        // Wait with timeout
+        if (tok->wait_for(std::chrono::seconds(3))) {
+            std::ostringstream oss;
+            oss << "[INFO] Published message to topic: " << topic;
+            threadSafeLog(oss.str());
+        } else {
+            std::ostringstream oss;
+            oss << "[ERROR] Publish timeout for topic: " << topic;
+            threadSafeLog(oss.str());
+        }
+
+    } catch (const mqtt::exception& e) {
+        std::cerr << "[MQTT EXCEPTION] Failed to publish to topic " << topic
+                  << ": " << e.what() << std::endl;
+    } catch (...) {
+        std::cerr << "[MQTT EXCEPTION] Unknown error occurred while publishing to " << topic << std::endl;
+    }
 }
 
 void PahoMqttClient::subscribe(const std::string &topic,
