@@ -24,17 +24,23 @@ void SmartMqttOrchestrator::start() {
 }
 
 void SmartMqttOrchestrator::onMotionMessage(const std::string& payload) {
-    std::lock_guard<std::mutex> lock(dataMutex_);
-    motion_ = (payload == "true");
-    hasMotion_ = true;
+    bool val  = (payload == "true");
+    {
+        std::lock_guard<std::mutex> lock(dataMutex_);
+        motion_ = val;
+        hasMotion_ = true;
+    }
     evaluateIfReady();
 }
 
 void SmartMqttOrchestrator::onLuxMessage(const std::string& payload) {
-    std::lock_guard<std::mutex> lock(dataMutex_);
     try {
-        lux_ = std::stof(payload);
-        hasLux_ = true;
+        float val = std::stof(payload);
+        {
+            std::lock_guard<std::mutex> lock(dataMutex_);
+            lux_ = val;
+            hasLux_ = true;
+        }
         evaluateIfReady();
     } catch (const std::exception& e) {
         std::cerr << "Error converting lux payload to float: " << e.what() << std::endl;
@@ -42,10 +48,13 @@ void SmartMqttOrchestrator::onLuxMessage(const std::string& payload) {
 }
 
 void SmartMqttOrchestrator::onTempMessage(const std::string& payload) {
-    std::lock_guard<std::mutex> lock(dataMutex_);
     try {
-        temp_ = std::stof(payload);
-        hasTemp_ = true;
+        float val = std::stof(payload);
+        {
+            std::lock_guard<std::mutex> lock(dataMutex_);
+            temp_ = val;
+            hasTemp_ = true;
+        }
         evaluateIfReady();
     } catch (const std::exception& e) {
         std::cerr << "Error converting temperature payload to float: " << e.what() << std::endl;
@@ -53,10 +62,13 @@ void SmartMqttOrchestrator::onTempMessage(const std::string& payload) {
 }
 
 void SmartMqttOrchestrator::onHumidityMessage(const std::string& payload) {
-    std::lock_guard<std::mutex> lock(dataMutex_);
     try {
-        humidity_ = std::stof(payload);
-        hasHumidity_ = true;
+        float val = std::stof(payload);
+        {
+            std::lock_guard<std::mutex> lock(dataMutex_);
+            humidity_ = val;
+            hasHumidity_ = true;
+        }
         evaluateIfReady();
     } catch (const std::exception& e) {
         std::cerr << "Error converting humidity payload to float: " << e.what() << std::endl;
@@ -64,18 +76,29 @@ void SmartMqttOrchestrator::onHumidityMessage(const std::string& payload) {
 }
 
 void SmartMqttOrchestrator::evaluateIfReady() {
-    if (hasMotion_ && hasLux_ && hasTemp_ && hasHumidity_) {
-        ruleEngine_->evaluate(lux_, temp_, humidity_, motion_);
+    bool ready = false;
+    float lux, temp, humidity;
+    bool motion;
 
-        // reset flags: only want to evaluate when all 4 update again
-        /*
-         * What if one sensor updates much faster?
-         * If one sensor floods with updates and others rarely update, evaluation may stall.
-         * We can improve by also triggering evaluation after some timeout or partial data (depending on our tolerance).
-         * */
-//        hasMotion_ = false;
-//        hasLux_ = false;
-//        hasTemp_ = false;
-//        hasHumidity_ = false;
+    {
+        std::lock_guard<std::mutex> lock(dataMutex_);
+        if (hasMotion_ && hasLux_ && hasTemp_ && hasHumidity_) {
+            // Copy values
+            lux = lux_;
+            temp = temp_;
+            humidity = humidity_;
+            motion = motion_;
+            ready = true;
+
+            // Optional: reset flags if needed
+            // hasMotion_ = false;
+            // hasLux_ = false;
+            // hasTemp_ = false;
+            // hasHumidity_ = false;
+        }
+    }
+    if (ready) {
+        ruleEngine_->evaluate(lux, temp, humidity, motion);
     }
 }
+
