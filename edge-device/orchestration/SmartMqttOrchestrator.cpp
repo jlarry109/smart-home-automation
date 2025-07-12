@@ -7,16 +7,16 @@ SmartMqttOrchestrator::SmartMqttOrchestrator(std::shared_ptr<IMqttClient> mqttCl
 
 void SmartMqttOrchestrator::start() {
     // lambda function simply forwards the payload to method onMotionMessage
-    mqttClient_->subscribe("/sensor/motion", [this](const std::string& payload) {
+    mqttClient_->subscribe("sensor/motion", [this](const std::string& payload) {
         onMotionMessage(payload);
     });
-    mqttClient_->subscribe("/sensor/lux", [this](const std::string& payload) {
+    mqttClient_->subscribe("sensor/lux", [this](const std::string& payload) {
         onLuxMessage(payload);
     });
-    mqttClient_->subscribe("/sensor/temperature", [this](const std::string& payload) {
+    mqttClient_->subscribe("sensor/temperature", [this](const std::string& payload) {
         onTempMessage(payload);
     });
-    mqttClient_->subscribe("/sensor/humidity", [this](const std::string& payload) {
+    mqttClient_->subscribe("sensor/humidity", [this](const std::string& payload) {
         onHumidityMessage(payload);
     });
 }

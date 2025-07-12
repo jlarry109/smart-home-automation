@@ -13,6 +13,6 @@ void LuxLogger::log(float lux) {
     threadSafeLog(oss.str());
 
     if (mqttClient_) {
-        mqttClient_->publish("/sensor/lux", std::to_string(lux));
+        mqttClient_->publish("sensor/lux", std::to_string(lux));
     }
 }

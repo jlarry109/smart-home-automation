@@ -45,10 +45,13 @@ void PahoMqttClient::connect() {
 }
 
 void PahoMqttClient::publish(const std::string& topic, const std::string& message) {
+    threadSafeLog("[Inside PahoMqttClient::publish]...looking to publish to: " + topic);
     static std::mutex mqttPublishMutex_;
     std::lock_guard<std::mutex> lock(mqttPublishMutex_);
+    threadSafeLog("[Inside PahoMqttClient::publish - after lock]...looking to publish to: " + topic);
     mqtt::message_ptr msg = mqtt::make_message(topic, message);
     msg->set_qos(1);
+    threadSafeLog("[Inside PahoMqttClient::publish - after set_qos()]...looking to publish to: " + topic);
     client_.publish(msg)->wait();
     std::ostringstream oss;
     oss << "[INFO] Published message to topic: " << topic;

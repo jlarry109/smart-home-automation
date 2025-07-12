@@ -48,7 +48,7 @@ void MotionMonitor::monitoringLoop(int intervalMs) {
 
             // publish only when the state changes (motion vs. no motion) to reduce MQTT traffic
             if (motionDetected != lastState_ && mqttClient_) {
-                mqttClient_->publish("/sensor/motion", motionDetected ? "true" : "false");
+                mqttClient_->publish("sensor/motion", motionDetected ? "true" : "false");
                 lastState_ = motionDetected;
             }
 
