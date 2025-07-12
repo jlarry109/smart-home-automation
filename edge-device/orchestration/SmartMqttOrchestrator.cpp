@@ -90,11 +90,10 @@ void SmartMqttOrchestrator::evaluateIfReady() {
             motion = motion_;
             ready = true;
 
-            // Optional: reset flags if needed
-            // hasMotion_ = false;
-            // hasLux_ = false;
-            // hasTemp_ = false;
-            // hasHumidity_ = false;
+            hasMotion_ = false;
+            hasLux_ = false;
+            hasTemp_ = false;
+            hasHumidity_ = false;
         }
     }
     if (ready) {

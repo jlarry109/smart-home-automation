@@ -52,7 +52,7 @@ int main() {
             std::string payload = payloadJson.dump();
             threadSafeLog("[HighTempRule] 🔥 Overheat detected!");
             mqttClient->publish("/alerts/temperature", payload);
-            threadSafeLog("[HighTempRule] 🔥 Published alert: + payload");
+            threadSafeLog("[HighTempRule] 🔥 Published alert: " + payload);
         };
 
         auto humidityAction = [mqttClient](float humidity) {
@@ -68,7 +68,7 @@ int main() {
             std::string payload = payloadJson.dump();
             threadSafeLog("[HumiditySpikeRule] 💧 Humidity spike detected!");
             mqttClient->publish("/alerts/humidity", payload);
-            threadSafeLog("[HumiditySpikeRule] 💧 Published alert: + payload");
+            threadSafeLog("[HumiditySpikeRule] 💧 Published alert: " + payload);
         };
 
         // Create mock sensors
