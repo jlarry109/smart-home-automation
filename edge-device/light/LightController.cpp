@@ -5,16 +5,6 @@
 constexpr float LUX_ON_THRESHOLD = 100.0f;
 constexpr float LUX_OFF_THRESHOLD = 300.0f;
 
-// Applies lighting rules: if it’s dark, turn light on; if it’s bright, turn off.
-void LightController::update(float lux) {
-    if (lux < LUX_ON_THRESHOLD && !isLightOn_) {
-        turnOn();
-    } else if (lux > LUX_OFF_THRESHOLD && isLightOn_) {
-        turnOff();
-    } else {
-        // No state change
-    }
-}
 
 void LightController::forceOn() {
     if (!isLightOn_) {

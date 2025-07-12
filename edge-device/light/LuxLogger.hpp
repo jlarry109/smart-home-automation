@@ -13,7 +13,6 @@ public:
     explicit LuxLogger(std::shared_ptr<IMqttClient> mqttClient);
 
     void log(float lux);
-    void maybeAlert(float lux);
 
 
 private:
