@@ -73,9 +73,9 @@ void SmartMqttOrchestrator::evaluateIfReady() {
          * If one sensor floods with updates and others rarely update, evaluation may stall.
          * We can improve by also triggering evaluation after some timeout or partial data (depending on our tolerance).
          * */
-        hasMotion_ = false;
-        hasLux_ = false;
-        hasTemp_ = false;
-        hasHumidity_ = false;
+//        hasMotion_ = false;
+//        hasLux_ = false;
+//        hasTemp_ = false;
+//        hasHumidity_ = false;
     }
 }

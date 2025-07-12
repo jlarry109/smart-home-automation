@@ -45,6 +45,8 @@ void PahoMqttClient::connect() {
 }
 
 void PahoMqttClient::publish(const std::string& topic, const std::string& message) {
+    static std::mutex mqttPublishMutex_;
+    std::lock_guard<std::mutex> lock(mqttPublishMutex_);
     mqtt::message_ptr msg = mqtt::make_message(topic, message);
     msg->set_qos(1);
     client_.publish(msg)->wait();
@@ -56,6 +58,7 @@ void PahoMqttClient::publish(const std::string& topic, const std::string& messag
 void PahoMqttClient::subscribe(const std::string &topic,
                                std::function<void(const std::string &)> callback) {
     try {
+        std::lock_guard<std::mutex> lock(callbacksMutex_);
         callbacks_[topic] = callback;
         client_.set_callback(*this);  // Make sure our class receives MQTT messages
         client_.subscribe(topic, 1)->wait(); // uses QoS=1 (at least once delivery) and blocks until subscription is confirmed.
