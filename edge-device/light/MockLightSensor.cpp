@@ -12,7 +12,7 @@ MockLightSensor::MockLightSensor()
 float MockLightSensor::readLux() const {
     callCount_++;
 
-    if (callCount_ % 15 == 0) {
+    if (callCount_ % 5 == 0) {
         // night/dusk
         std::uniform_real_distribution<float> nightDist(0.0f, 30.0f);
         return nightDist(engine_);

@@ -33,7 +33,8 @@ void MotionAtNightRule::evaluate(float lux, float temp, float humidity, bool mot
         };
         std::string payload = payloadJson.dump();
         threadSafeLog("[Inside MotionAtNightRule::evaluate] Publishing alert: attempting to publish to alerts/light");
-        mqttClient_->publish("alerts/light", payload);
+//        mqttClient_->publish("alerts/light", payload);
+        mqttClient_->publishAsync("alerts/light", payload, 1);
         threadSafeLog("[MotionAtNightRule] Published alert: " + payload);
     }
     else {
