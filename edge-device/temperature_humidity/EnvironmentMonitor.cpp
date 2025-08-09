@@ -46,8 +46,8 @@ void EnvironmentMonitor::monitoringLoop(int intervalMs) {
                 std::string tempPayload = std::to_string(reading.temperatureCelsius);
                 std::string humidPayload = std::to_string(reading.humidityPercent);
 
-                mqttClient_->publish("sensor/temperature", tempPayload);
-                mqttClient_->publish("sensor/humidity", humidPayload);
+                mqttClient_->publish("sensors/temperature", tempPayload);
+                mqttClient_->publish("sensors/humidity", humidPayload);
             }
             std::this_thread::sleep_for(std::chrono::milliseconds(intervalMs));
         }
