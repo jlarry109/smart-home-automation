@@ -19,7 +19,7 @@ public:
                  std::shared_ptr<LightController> controller);
     ~LightMonitor();
 
-    void startMonitoring(int intervalMs = 10000); // default: every 10 seconds
+    void startMonitoring(int intervalMs = 1000); // default: every 1 seconds
     void stopMonitoring();
 
 private:
