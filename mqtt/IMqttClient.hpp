@@ -9,6 +9,7 @@ public:
     virtual void connect() = 0;
     virtual const std::string& getClientId() const = 0;
     virtual void publish (const std::string& topic, const std::string& message) = 0;
+    virtual void publishAsync(const std::string& topic, const std::string& message, int qos, int retries = 3) = 0;
 
     // This allows any MQTT implementation to let users register a function to handle messages for a given topic.
     virtual void subscribe(const std::string& topic,

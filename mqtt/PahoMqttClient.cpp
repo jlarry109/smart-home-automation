@@ -13,7 +13,21 @@ PahoMqttClient::PahoMqttClient(const std::string& serverURI,
           clientId_(clientId),
           certPath_(certPath),
           keyPath_(keyPath),
-          caPath_(caPath) {}
+          caPath_(caPath) {
+    // Start background publisher
+    publishWorker_ = std::thread(&PahoMqttClient::publishWorkerLoop, this);
+}
+
+PahoMqttClient::~PahoMqttClient() {
+    {
+        std::lock_guard<std::mutex> lock(publishQueueMutex_);
+        stopWorker_ = true;
+    }
+    publishCv_.notify_all();
+    if (publishWorker_.joinable()) {
+        publishWorker_.join();
+    }
+}
 
 void PahoMqttClient::connect() {
     try {
@@ -92,6 +106,89 @@ void PahoMqttClient::publish(const std::string& topic, const std::string& messag
     }
 }
 
+void PahoMqttClient::publishAsync(const std::string& topic, const std::string& message, int qos, int retries) {
+    if (retries < 0) {
+        std::lock_guard<std::mutex> lock(retryPolicyMutex_);
+        retries = retryPolicy_.maxRetries;
+    }
+    {
+        std::lock_guard<std::mutex> lock(publishQueueMutex_);
+        publishQueue_.push(PendingPublish{topic, message, qos, retries});
+    }
+    publishCv_.notify_one();
+}
+
+void PahoMqttClient::publishWorkerLoop() {
+    while (true) {
+        PendingPublish job;
+        {
+            std::unique_lock<std::mutex> lock(publishQueueMutex_);
+            publishCv_.wait(lock, [&] { return stopWorker_ || !publishQueue_.empty(); });
+            if (stopWorker_ && publishQueue_.empty()) break;
+            job = std::move(publishQueue_.front());
+            publishQueue_.pop();
+        }
+
+        RetryPolicy policyCopy;
+        {
+            std::lock_guard<std::mutex> lock(retryPolicyMutex_);
+            policyCopy = retryPolicy_;
+        }
+
+        int attempt = 0;
+        auto backoff = policyCopy.initialBackoff;
+        while (attempt < job.retries) {
+            try {
+                mqtt::message_ptr msg = mqtt::make_message(job.topic, job.payload);
+                msg->set_qos(job.qos);
+
+                mqtt::delivery_token_ptr tok;
+                {
+                    std::lock_guard<std::mutex> lock(mqttPublishMutex_);
+                    tok = client_.publish(msg);
+                }
+
+                logTokenId(tok, "[ASYNC] Publish initiated");
+
+                if (tok && tok->wait_for(std::chrono::seconds(3))) {
+                    logTokenId(tok, "[ASYNC] Publish successful");
+                    break;
+                } else {
+                    logTokenId(tok, "[ASYNC] Publish timeout");
+                }
+            } catch (const mqtt::exception& e) {
+                threadSafeLog(std::string("[ASYNC] Publish failed: ") + e.what());
+            }
+
+            ++attempt;
+            if (attempt < job.retries) {
+                std::this_thread::sleep_for(backoff);
+                backoff = std::chrono::milliseconds(
+                        static_cast<int64_t>(backoff.count() * policyCopy.backoffMultiplier)
+                );
+            }
+        }
+    }
+}
+
+void PahoMqttClient::setRetryPolicy(const RetryPolicy& policy) {
+    std::lock_guard<std::mutex> lock(retryPolicyMutex_);
+    retryPolicy_ = policy;
+}
+
+void PahoMqttClient::logTokenId(const mqtt::delivery_token_ptr& tok, const std::string& prefix) {
+    std::ostringstream oss;
+    oss << prefix;
+    if (tok) {
+        try {
+            oss << " (token id=" << tok->get_message_id() << ")";
+        } catch (...) {
+            oss << " (token id unavailable)";
+        }
+    }
+    threadSafeLog(oss.str());
+}
+
 void PahoMqttClient::subscribe(const std::string &topic,
                                std::function<void(const std::string &)> callback) {
     try {
@@ -126,3 +223,16 @@ const std::string& PahoMqttClient::getClientId() const {
 void PahoMqttClient::disconnect() {
     client_.disconnect()->wait();
 }
+
+
+/*
+ * // Set retry/backoff policy at runtime
+RetryPolicy policy;
+policy.maxRetries = 5;
+policy.initialBackoff = std::chrono::milliseconds(300);
+policy.backoffMultiplier = 1.5;
+mqttClient->setRetryPolicy(policy);
+
+// Fire-and-forget async publish
+mqttClient->publishAsync("alerts/temperature", "Temp high!", 1);
+ */
