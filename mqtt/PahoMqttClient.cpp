@@ -46,30 +46,49 @@ void PahoMqttClient::connect() {
 
 void PahoMqttClient::publish(const std::string& topic, const std::string& message) {
     threadSafeLog("[Inside PahoMqttClient::publish]...looking to publish to: " + topic);
-    std::lock_guard<std::mutex> lock(mqttPublishMutex_);
-    threadSafeLog("[Inside PahoMqttClient::publish - after lock]...looking to publish to: " + topic);
+
+    // Build message without holding the mutex
     mqtt::message_ptr msg = mqtt::make_message(topic, message);
     msg->set_qos(1);
     threadSafeLog("[Inside PahoMqttClient::publish - after set_qos()]...looking to publish to: " + topic);
-    try {
-        auto tok = client_.publish(msg);
 
-        // Wait with timeout
-        if (tok->wait_for(std::chrono::seconds(3))) {
+    // Acquire token under lock, then release the lock before waiting on it.
+    mqtt::delivery_token_ptr tok;
+    try {
+        {
+            std::lock_guard<std::mutex> lock(mqttPublishMutex_);
+            tok = client_.publish(msg);
+        }
+
+        if (!tok) {
+            std::ostringstream oss;
+            oss << "[ERROR] Publish returned null token for topic: " << topic;
+            threadSafeLog(oss.str());
+            return;
+        }
+
+        // Wait for completion outside the mutex to avoid serializing all publishers.
+        constexpr auto WAIT_TIMEOUT = std::chrono::seconds(3);
+        if (tok->wait_for(WAIT_TIMEOUT)) {
             std::ostringstream oss;
             oss << "[INFO] Published message to topic: " << topic;
             threadSafeLog(oss.str());
         } else {
             std::ostringstream oss;
-            oss << "[ERROR] Publish timeout for topic: " << topic;
+            oss << "[WARN] Publish timeout for topic: " << topic;
             threadSafeLog(oss.str());
         }
 
     } catch (const mqtt::exception& e) {
-        std::cerr << "[MQTT EXCEPTION] Failed to publish to topic " << topic
-                  << ": " << e.what() << std::endl;
+        std::ostringstream oss;
+        oss << "[MQTT EXCEPTION] Failed to publish to topic " << topic << ": " << e.what();
+        threadSafeLog(oss.str());
+    } catch (const std::exception& e) {
+        std::ostringstream oss;
+        oss << "[EXCEPTION] Failed to publish to topic " << topic << ": " << e.what();
+        threadSafeLog(oss.str());
     } catch (...) {
-        std::cerr << "[MQTT EXCEPTION] Unknown error occurred while publishing to " << topic << std::endl;
+        threadSafeLog("[UNKNOWN EXCEPTION] Failed to publish (unknown) for topic: " + topic);
     }
 }
 
