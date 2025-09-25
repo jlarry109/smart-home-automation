@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Global body and typography */
+body {
+  @apply bg-gray-50 text-gray-900 font-sans;
+}
+
+h1, h2, h3 {
+  @apply font-semibold text-gray-800;
+}
+
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Links */
+a {
+  @apply text-blue-600 hover:text-blue-800 no-underline;
+}
+
+/* Buttons */
+button {
+  @apply cursor-pointer rounded-md bg-blue-600 text-white px-4 py-2 text-base transition-colors;
+}
+button:hover {
+  @apply bg-blue-700;
+}
+
+/* Dashboard container */
+.dashboard-container {
+  @apply min-h-screen p-6 space-y-8 bg-gray-50;
+}
+
+/* Cards (MotionWidget, Analytics) */
+.card {
+  @apply bg-white rounded-xl shadow-md p-6 flex flex-col justify-between transition-transform hover:-translate-y-1 hover:shadow-lg;
+}
+.card-title {
+  @apply text-lg font-semibold mb-2;
+}
+.card-status {
+  @apply text-base font-medium;
+}
+.card-footer {
+  @apply text-sm text-gray-500 mt-2;
+}
+
+/* Alerts Section */
+.alerts-list {
+  @apply flex flex-col gap-3;
+}
+.alert-item {
+  @apply bg-red-100 text-red-700 font-medium rounded-md p-3;
+}
+
+/* Widgets grid */
+.widgets {
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+}
+/* Analytics Card */
+.analytics-card {
+  @apply bg-white rounded-xl shadow-md w-full h-full flex flex-col;
+  min-height: 30rem;
+}
+
+
+
