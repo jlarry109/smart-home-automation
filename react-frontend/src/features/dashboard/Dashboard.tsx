@@ -39,10 +39,7 @@ const Dashboard: React.FC = () => {
             />
           </motion.div>
           <motion.div custom={1} initial="hidden" animate="visible" variants={widgetVariants}>
-            <TempWidget
-              temperature={22}
-              lastUpdated="2025-09-22 14:20"
-            />
+            <TempWidget />
           </motion.div>
           <motion.div custom={2} initial="hidden" animate="visible" variants={widgetVariants}>
             <HumidityWidget

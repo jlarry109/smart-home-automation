@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { FaLightbulb, FaCog } from "react-icons/fa";
+import { useMqttData } from "../../../hooks/useMqttData.js";
 
 const DeviceControlPanel: React.FC = () => {
+  const { sensorData } = useMqttData();
   const [lightOn, setLightOn] = useState(false);
   const [autoMode, setAutoMode] = useState(true);
-  const [currentLux] = useState(250);
+  const currentLux = sensorData.lux || 0;
 
   const handleLightToggle = () => {
     setLightOn(!lightOn);
@@ -56,7 +58,7 @@ const DeviceControlPanel: React.FC = () => {
         {/* Current Lux */}
         <div className="p-2 bg-gray-50 rounded">
           <div className="flex justify-between items-center">
-            <span className="text-sm font-medium">Lux: {currentLux}</span>
+            <span className="text-sm font-medium">Lux: {Math.round(currentLux)}</span>
             <span className="text-xs text-gray-500">ON&lt;100 | OFF&gt;300</span>
           </div>
         </div>

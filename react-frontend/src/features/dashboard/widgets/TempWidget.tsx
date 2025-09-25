@@ -1,12 +1,11 @@
 import React from "react";
 import { FaThermometerHalf } from "react-icons/fa";
+import { useMqttData } from "../../../hooks/useMqttData.js";
 
-interface TempWidgetProps {
-  temperature: number;
-  lastUpdated: string;
-}
-
-export const TempWidget: React.FC<TempWidgetProps> = ({ temperature, lastUpdated }) => {
+export const TempWidget: React.FC = () => {
+  const { sensorData } = useMqttData();
+  const temperature = sensorData.temperature || 22; // fallback to mock data
+  const lastUpdated = sensorData.lastUpdated;
   const getTempStatus = (temp: number) => {
     if (temp > 25) return { status: "Warm", color: "text-red-600", borderColor: "border-red-500" };
     if (temp < 18) return { status: "Cool", color: "text-blue-600", borderColor: "border-blue-500" };
@@ -22,9 +21,9 @@ export const TempWidget: React.FC<TempWidgetProps> = ({ temperature, lastUpdated
         <div className="card-title">Temperature Sensor</div>
       </div>
       <div className={`card-status ${color}`}>
-        {temperature}°C - {status}
+        {temperature.toFixed(2)}°C - {status}
       </div>
-      <div className="card-footer">Last updated: {lastUpdated}</div>
+      <div className="card-footer">Last updated: {new Date(lastUpdated).toLocaleTimeString()}</div>
     </div>
   );
 };

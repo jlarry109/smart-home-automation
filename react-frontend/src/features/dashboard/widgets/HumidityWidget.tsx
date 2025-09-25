@@ -1,12 +1,10 @@
 import React from "react";
 import { WiHumidity } from "react-icons/wi";
+import { useMqttData } from "../../../hooks/useMqttData.js";
 
-interface HumidityWidgetProps {
-  humidity: number;
-  lastUpdated: string;
-}
-
-export const HumidityWidget: React.FC<HumidityWidgetProps> = ({ humidity, lastUpdated }) => {
+export const HumidityWidget: React.FC = () => {
+  const { sensorData } = useMqttData();
+  const humidity = sensorData.humidity || 45;
   const getHumidityStatus = (humidity: number) => {
     if (humidity > 60) return { status: "High", color: "text-red-600", borderColor: "border-red-500" };
     if (humidity < 30) return { status: "Low", color: "text-yellow-600", borderColor: "border-yellow-500" };
@@ -22,9 +20,9 @@ export const HumidityWidget: React.FC<HumidityWidgetProps> = ({ humidity, lastUp
         <div className="card-title">Humidity Sensor</div>
       </div>
       <div className={`card-status ${color}`}>
-        {humidity}% - {status}
+        {humidity.toFixed(2)}% - {status}
       </div>
-      <div className="card-footer">Last updated: {lastUpdated}</div>
+      <div className="card-footer">Last updated: {new Date(sensorData.lastUpdated).toLocaleTimeString()}</div>
     </div>
   );
 };
