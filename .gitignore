@@ -61,8 +61,8 @@ deps/
 *.zip
 
 # === Node / React Frontend ===
-dashboard/react-frontend/node_modules/
-dashboard/react-frontend/build/
+react-frontend/node_modules/
+react-frontend/build/
 
 # === IDE Specific ===
 .vscode/
